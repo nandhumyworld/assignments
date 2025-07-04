@@ -1,0 +1,91 @@
+Consider you as Streamlit developer in python!
+
+Write me a code to create an app that should have a radio button date (default to current date), Farm or Home, Expense or Income, and it should have a text box to enter particulars and amount without decimals its a whole currency amount in ₹. dropdown to record whether its Need, want or others all these should be mandatory fields and last field as comments or notes in text area wich is optional to enter. i want all these to recorded in google sheet and create a another tab to show graph based on income or expense, farm or home, with from and to date to choose.
+
+
+
+Here's a **step-by-step guide** to help you create a Google Sheets credentials file and set up your sheet for use with Streamlit:
+
+---
+
+## ✅ STEP 1: Create a Google Cloud Project
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Click on **"Select a project" → New Project**
+3. Give it a name like `IncomeExpenseTracker` and click **Create**
+
+---
+
+## ✅ STEP 2: Enable Google Sheets API
+
+1. In your new project, go to the **API & Services → Library**
+2. Search for:
+
+   * **Google Sheets API** → Click → **Enable**
+   * **Google Drive API** → Click → **Enable**
+
+---
+
+## ✅ STEP 3: Create Service Account & Credentials File
+
+1. Go to **API & Services → Credentials**
+2. Click **Create Credentials → Service Account**
+3. Fill in:
+
+   * Name: `streamlit-sheets-access`
+   * Role: Basic → **Editor**
+4. After creation, go to the **"Keys"** section inside your service account
+5. Click **Add Key → Create new key → JSON**
+6. It will download a file like: `streamlit-sheets-access-xxxx.json`
+
+🛑 **Keep this file safe** – you'll use this in your Streamlit app.
+
+---
+
+## ✅ STEP 4: Share Your Google Sheet with Service Account
+
+1. Go to [Google Sheets](https://sheets.google.com/)
+
+2. Create a new sheet called `IncomeExpenseTracker`
+
+3. Add these headers in the first row (optional but helpful):
+
+   ```
+   Date | Location | Type | Particulars | Amount | Category | Comments
+   ```
+
+4. Copy the **email address** from your credentials file. It will look like:
+
+   ```
+   streamlit-sheets-access@your-project-id.iam.gserviceaccount.com
+   ```
+
+5. Share the sheet (like normal sharing) with this service account email and give it **Editor** access.
+
+---
+
+## ✅ STEP 5: Move the JSON File to Your Project
+
+Put the `streamlit-sheets-access-xxxx.json` file into your Streamlit project folder. You’ll reference it like:
+
+```python
+credentials = ServiceAccountCredentials.from_json_keyfile_name("streamlit-sheets-access-xxxx.json", scope)
+```
+
+Or rename it to something simpler like `credentials.json`.
+
+---
+
+## ✅ STEP 6: Install Python Packages
+
+In your terminal:
+
+```bash
+pip install streamlit gspread oauth2client pandas plotly
+```
+
+---
+
+Once this is done, your Streamlit app will be able to **read/write to your Google Sheet** like a database!
+
+---
