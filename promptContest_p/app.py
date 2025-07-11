@@ -1,6 +1,7 @@
 import streamlit as st
 import time
 import threading
+import json
 from datetime import datetime, timedelta
 from streamlit_js_eval import streamlit_js_eval
 
@@ -71,6 +72,19 @@ st.markdown("""
         background-color: #ffffff !important;
         color: #000000 !important;
     }
+    .copy-button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    .copy-button:hover {
+        background-color: #45a049;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -104,6 +118,32 @@ def disable_copy_paste():# Global disable paste for all elements
             });
         </script>
     """, height=0)
+
+def copy_to_clipboard(text):
+    """Return HTML + JS to copy `text` to clipboard with a button"""
+    # Escape for JavaScript string inside HTML
+    safe_text = json.dumps(text)  # Properly escapes quotes, newlines, backslashes
+    js_code = f"""
+    <script>
+        function copyToClipboard() {{
+            const text = {text};
+            navigator.clipboard.writeText(text).then(function() {{
+                alert('Evaluation results copied to clipboard!');
+            }}, function(err) {{
+                console.error('Could not copy text: ', err);
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Evaluation results copied to clipboard!');
+            }});
+        }}
+    </script>
+    <button onclick="copyToClipboard()">📋 Copy to Clipboard</button>
+    """
+    return js_code
 
 def evaluate_prompts(prompt1, prompt2):
     """Evaluate and concatenate both prompts"""
@@ -194,7 +234,7 @@ st.markdown("**Note:** Copy and paste functions are disabled for fair play!")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.markdown(f"#### Player 1: {p1_first} {p1_last}" if p1_first and p1_last else "#### Player 2")
+    st.markdown(f"#### Player 1: {p1_first} {p1_last}" if p1_first and p1_last else "#### Player 1")
     player1_prompt = st.text_area(
         "Enter your prompt:",
         height=200,
@@ -203,7 +243,7 @@ with col1:
         disabled=st.session_state.player1_submitted
     )
     
-    if st.button("Submit Player 1 Prompt", key="submit_p1", disabled=st.session_state.player2_submitted):
+    if st.button("Submit Player 1 Prompt", key="submit_p1", disabled=st.session_state.player1_submitted):
         if player1_prompt.strip():
             st.session_state.player1prompt = player1_prompt
             st.session_state.player1_submitted = True
@@ -243,28 +283,13 @@ if st.session_state.player1_submitted and st.session_state.player2_submitted:
 
 # Display Evaluation Results
 if st.session_state.evaluation_result:
-    st.markdown("### 📊 Evaluation Results")
+    st.markdown("### Combined Prompt for Evaluation:")
+    
+    evaluation_result_text = st.session_state.evaluation_result
+    # Add copy to clipboard button
+    st.code(evaluation_result_text, language='html')
+    st.code(evaluation_result_text, language='plain')
 
-    # Define the style you want
-    styled_text = f"""
-    <div style='
-        background-color: white;
-        color: red;               /* Set text color */
-        padding: 10px;
-        height: 300px;
-        overflow-y: auto;
-        border: 1px solid #ccc;
-        border-radius: 5px;
-        font-family: monospace;
-        white-space: pre-wrap;
-    '>
-    {st.session_state.evaluation_result}
-    </div>
-    """
-
-    # Render styled output
-    st.markdown("**Combined Evaluation:**", unsafe_allow_html=True)
-    st.markdown(styled_text, unsafe_allow_html=True)
 
 # Reset Button
 if st.button("🔄 Reset Contest", type="secondary"):
