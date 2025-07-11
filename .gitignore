@@ -1,3 +1,4 @@
 streamlit_p/kanakuBook/incomeexpensetracker-464907-3fa726c704f9.json
 # Ignore all `.env` files
 *.env
+scecrets.toml

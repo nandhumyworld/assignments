@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+import threading
 import json
 from datetime import datetime, timedelta
 from streamlit_js_eval import streamlit_js_eval
@@ -144,7 +145,7 @@ def copy_to_clipboard(text):
     """
     return js_code
 
-def combine_evaluation_prompt(prompt1, prompt2):
+def evaluate_prompts(prompt1, prompt2):
     """Evaluate and concatenate both prompts"""
     if not prompt1.strip() or not prompt2.strip():
         return "Error: Both players must submit their prompts before evaluation."
@@ -167,27 +168,6 @@ def combine_evaluation_prompt(prompt1, prompt2):
 
     """
     return combined_prompt
-
-def get_from_openai(final_prompt):
-    """Get evaluation result from OpenAI API"""
-    import openai
-
-    try:
-        # Set your OpenAI API key (replace with your own key or use Streamlit secrets)
-        openai.api_key = st.secrets["openai"]["api_key"]
-        _model="gpt-4o"
-        st.title(f"💬 Using model : {_model}")
-        response = openai.ChatCompletion.create(
-            model=_model,  # Use gpt-4o-mini for lower usage tier
-            messages=[
-                {"role": "system", "content": "You are a prompt evaluator assistance."},
-                {"role": "user", "content": final_prompt}
-            ],
-            temperature=0.7
-        )
-        return response.choices[0].message.content
-    except Exception as e:
-        return f"Error: {str(e)}"
 
 # Main App Layout
 st.markdown('<h1 class="main-title">🦅 Prompt Battle PlayGround</h1>', unsafe_allow_html=True)
@@ -295,20 +275,11 @@ with col2:
 st.markdown("### 🏆 Evaluation")
 if st.session_state.player1_submitted and st.session_state.player2_submitted:
     if st.button("🔍 EVALUATE PROMPTS", type="primary", use_container_width=True):
-        final_prompt = combine_evaluation_prompt(
+        st.session_state.evaluation_result = evaluate_prompts(
             st.session_state.player1prompt, 
             st.session_state.player2prompt
         )
-
-        with st.spinner("Thinking..."):
-            try:
-                st.session_state.evaluation_result = get_from_openai(final_prompt)
-                st.success("Response:")
-            except Exception as e:
-                st.error(f"Error: {str(e)}")
-
-        #st.session_state.evaluation_result = get_from_openai(final_prompt)
-        # st.rerun()
+        st.rerun()
 
 # Display Evaluation Results
 if st.session_state.evaluation_result:
@@ -316,8 +287,8 @@ if st.session_state.evaluation_result:
     
     evaluation_result_text = st.session_state.evaluation_result
     # Add copy to clipboard button
-    st.markdown(evaluation_result_text, unsafe_allow_html=True)
-    #st.code(evaluation_result_text, language='plain')
+    st.code(evaluation_result_text, language='html')
+    st.code(evaluation_result_text, language='plain')
 
 
 # Reset Button
