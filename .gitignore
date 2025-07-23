@@ -3,3 +3,8 @@ streamlit_p/kanakuBook/incomeexpensetracker-464907-3fa726c704f9.json
 *.env
 scecrets.toml
 promptContest_p/.streamlit/secrets.toml
+__pycache__/
+*.py[cod]
+*.csv
+*.pkl
+*.index

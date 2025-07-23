@@ -58,7 +58,7 @@ def main():
                     
                     # Step 3: Create embeddings
                     st.write("🔢 Creating embeddings...")
-                    embeddings = llm.create_embeddings(openai_api_key)
+                    embeddings = llm.create_embeddings()
                     
                     if embeddings:
                         st.success("Embeddings created successfully")

@@ -35,7 +35,7 @@ def get_openai_api_key():
     
     return openai_api_key
 
-def create_embeddings(openai_api_key: str):
+def create_embeddings():
     """
     Create OpenAI embeddings instance
     
@@ -47,7 +47,7 @@ def create_embeddings(openai_api_key: str):
     """
     try:
         embeddings = OpenAIEmbeddings(
-            openai_api_key=openai_api_key,
+            openai_api_key=get_openai_api_key(),
             model="text-embedding-ada-002"
         )
         return embeddings
